@@ -159,6 +159,11 @@ int main(int argc, char** argv) {
     
   }
 
+  close(sock);
+  free(buffer);
+  free(sendbuffer);
+  return 0;
+
   // while (1){ 
   //   printf("\nEnter the type of the number to send (options are char, short, int, or bye to quit): ");
   //   fgets(buffer, size, stdin);
@@ -205,6 +210,4 @@ int main(int argc, char** argv) {
   //   }
   //   send(sock, sendbuffer, sendbuffer[0]+1, 0);
   // }
-
-  return 0;
 }
