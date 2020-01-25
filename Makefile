@@ -23,3 +23,4 @@ clean:
 	rm -f server_num
 	rm -f client_num
 	rm -f name_addr
+	rm -rf *.dSYM
