@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <time.h>
+#include <sys/time.h>
 
 /* simple client, takes two parameters, the server domain name,
    and the server port number */
