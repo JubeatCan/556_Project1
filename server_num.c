@@ -8,7 +8,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
-#include <time.h>
+#include <sys/time.h>
 
 /**************************************************/
 /* a few simple linked list functions             */
@@ -93,13 +93,13 @@ int main(int argc, char **argv)
   int select_retval;
 
   /* a silly message */
-  char *message = "Welcome! COMP/ELEC 429 Students!\n";
+  // char *message = "Welcome! COMP/ELEC 429 Students!\n";
 
   /* number of bytes sent/received */
   int count;
 
   /* numeric value received */
-  int num;
+  // int num;
 
   /* linked list for keeping track of connected sockets */
   struct node head;
@@ -233,12 +233,12 @@ int main(int argc, char **argv)
         add(&head, new_sock, addr);
 
         /* let's send a message to the client just for fun */
-        count = send(new_sock, message, strlen(message) + 1, 0);
-        if (count < 0)
-        {
-          perror("error sending message to client");
-          abort();
-        }
+        // count = send(new_sock, message, strlen(message) + 1, 0);
+        // if (count < 0)
+        // {
+        //   perror("error sending message to client");
+        //   abort();
+        // }
       }
 
       /* check other connected sockets, see if there is
@@ -285,6 +285,7 @@ int main(int argc, char **argv)
           /* we have data from a client */
 
           count = recv(current->socket, buf, BUF_LEN, 0);
+          printf("%d\n", count);
           if (count <= 0)
           {
             /* something is wrong */
@@ -314,7 +315,7 @@ int main(int argc, char **argv)
             /* in this case, we expect a message where the first byte
                    stores the number of bytes used to encode a number, 
                    followed by that many bytes holding a numeric value */
-            short size = (short)ntohs(*(short *)(buf));
+            unsigned short size = (unsigned short)ntohs(*(unsigned short *)(buf));
             if (size != count)
             {
               /* we got only a part of a message, we won't handle this in

@@ -156,7 +156,8 @@ int main(int argc, char** argv) {
 
     printf("Server Received Timestamp Sec:  %ld\n", server_tv_sec);
     printf("Server Received Timestamp MSec: %ld\n", server_tv_usec);
-    
+    printf("First diff Sec: %ld\n", server_tv_sec - send_tv_sec);
+    printf("First diff MSec: %ld\n", server_tv_usec - send_tv_usec);
   }
 
   close(sock);
