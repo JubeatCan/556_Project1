@@ -107,7 +107,7 @@ int main(int argc, char **argv)
 
   /* a buffer to read data */
   char *buf;
-  int BUF_LEN = 1000;
+  int BUF_LEN = 65535;
 
   buf = (char *)malloc(BUF_LEN);
 
@@ -314,7 +314,8 @@ int main(int argc, char **argv)
             /* in this case, we expect a message where the first byte
                    stores the number of bytes used to encode a number, 
                    followed by that many bytes holding a numeric value */
-            if (buf[0] + 1 != count)
+            short size = (short)ntohs(*(short *)(buf));
+            if (size != count)
             {
               /* we got only a part of a message, we won't handle this in
                      this simple example */
@@ -323,37 +324,55 @@ int main(int argc, char **argv)
             }
             else
             {
-              switch (buf[0])
-              {
-              case 1:
-                /* note the type casting here forces signed extension
-		       to preserve the signedness of the value */
-                /* note also the use of parentheses for pointer 
-		       dereferencing is critical here */
-                num = (char)*(char *)(buf + 1);
-                break;
-              case 2:
-                /* note the type casting here forces signed extension
-		       to preserve the signedness of the value */
-                /* note also the use of parentheses for pointer 
-		       dereferencing is critical here */
-                /* note for 16 bit integers, byte ordering matters */
-                num = (short)ntohs(*(short *)(buf + 1));
-                break;
-              case 4:
-                /* note the type casting here forces signed extension
-		       to preserve the signedness of the value */
-                /* note also the use of parentheses for pointer 
-		       dereferencing is critical here */
-                /* note for 32 bit integers, byte ordering matters */
-                num = (int)ntohl(*(int *)(buf + 1));
-                break;
-              default:
-                break;
-              }
+                struct timeval _timeval;
+                gettimeofday(&_timeval, NULL);
+
+                time_t tv_sec = _timeval.tv_sec;
+                time_t tv_usec = _timeval.tv_usec;
+
+                char* response = (char*) malloc(size);
+                *(unsigned short *) response = (unsigned short) htons(size);
+                *(time_t *) (response + 2) = (time_t) htonl(tv_sec);
+                *(time_t *) (response + 6) = (time_t) htonl(tv_usec);
+
+                for (int i = 0; i < size - 10; i++)
+                {
+                    response[10 + i] = (char)*(char *)(buf + 10 + i);
+                }
+
+                send(new_sock, response, size, 0);
+
+//              switch (buf[0])
+//              {
+//              case 1:
+//                /* note the type casting here forces signed extension
+//		       to preserve the signedness of the value */
+//                /* note also the use of parentheses for pointer
+//		       dereferencing is critical here */
+//                num = (char)*(char *)(buf + 1);
+//                break;
+//              case 2:
+//                /* note the type casting here forces signed extension
+//		       to preserve the signedness of the value */
+//                /* note also the use of parentheses for pointer
+//		       dereferencing is critical here */
+//                /* note for 16 bit integers, byte ordering matters */
+//                num = (short)ntohs(*(short *)(buf + 1));
+//                break;
+//              case 4:
+//                /* note the type casting here forces signed extension
+//		       to preserve the signedness of the value */
+//                /* note also the use of parentheses for pointer
+//		       dereferencing is critical here */
+//                /* note for 32 bit integers, byte ordering matters */
+//                num = (int)ntohl(*(int *)(buf + 1));
+//                break;
+//              default:
+//                break;
+//              }
               /* a complete message is received, print it out */
-              printf("Received the number \"%d\". Client IP address is: %s\n",
-                     num, inet_ntoa(current->client_addr.sin_addr));
+//              printf("Received the number \"%d\". Client IP address is: %s\n",
+//                     num, inet_ntoa(current->client_addr.sin_addr));
             }
           }
         }
