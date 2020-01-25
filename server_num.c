@@ -315,7 +315,11 @@ int main(int argc, char **argv)
             /* in this case, we expect a message where the first byte
                    stores the number of bytes used to encode a number, 
                    followed by that many bytes holding a numeric value */
+<<<<<<< HEAD
             unsigned short size = (unsigned short)ntohs(*(unsigned short *)(buf));
+=======
+            unsigned short size = ntohs(*(unsigned short *)(buf));
+>>>>>>> e1e82dda4c81494deaf2de6d63df802593ed5766
             if (size != count)
             {
               /* we got only a part of a message, we won't handle this in
