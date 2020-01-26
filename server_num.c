@@ -338,10 +338,7 @@ int main(int argc, char **argv)
                 *(time_t *) (response + 2) = (time_t) htonl(tv_sec);
                 *(time_t *) (response + 6) = (time_t) htonl(tv_usec);
 
-                for (int i = 0; i < size - 10; i++)
-                {
-                    response[10 + i] = (char)*(char *)(buf + 10 + i);
-                }
+                strncat(response + 10, buf + 10, size);
 
                 send(new_sock, response, size, 0);
 
