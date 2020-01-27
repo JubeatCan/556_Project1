@@ -138,7 +138,19 @@ int main(int argc, char** argv) {
     *(long int *) (sendbuffer + 6) = (long int) htonl(send_tv_usec);
     strncat(sendbuffer + 10, dummyData, _size);
 
-    send(sock, sendbuffer, _size, 0);
+
+    //send all
+    int sentSizeCount = 0;
+    int tempSizeToSent = _size;
+    int _sent_count = 0;
+
+    while (sentSizeCount != _size) {
+        _sent_count = send(sock, buffer + sentSizeCount, tempSizeToSent, 0);
+        sentSizeCount += _sent_count;
+        tempSizeToSent = _size - sentSizeCount;
+    }
+
+    // send(sock, sendbuffer, _size, 0);
 
 
     //Receive The Whole Frame

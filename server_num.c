@@ -286,6 +286,8 @@ int main(int argc, char **argv)
 
           count = recv(current->socket, buf, BUF_LEN, 0);
           printf("%d\n", count);
+
+
           if (count <= 0)
           {
             /* something is wrong */
@@ -302,6 +304,8 @@ int main(int argc, char **argv)
             close(current->socket);
             dump(&head, current->socket);
           }
+
+          
           else
           {
             /* we got count bytes of data from the client */
