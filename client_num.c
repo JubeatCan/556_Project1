@@ -121,7 +121,6 @@ int main(int argc, char** argv) {
   }
 
   struct timeval _timeval;
-  int _receive_count;
 
   time_t send_tv_sec;
   long int send_tv_usec;
@@ -141,15 +140,27 @@ int main(int argc, char** argv) {
 
     send(sock, sendbuffer, _size, 0);
 
-    _receive_count = recv(sock, buffer, _size, 0);
 
-    if (_receive_count < 0) {
-      perror("Receive failure");
-      abort();
-    } else if (_receive_count != _size) {
-      perror("Incomplete");
-      abort();
+    //Receive The Whole Frame
+    int receivedSizeCount = 0;
+    int tempSizeToReceive = _size;
+    int _receive_count = 0;
+
+    while (receivedSizeCount != _size) {
+        _receive_count = recv(sock, buffer + receivedSizeCount, tempSizeToReceive, 0);
+        receivedSizeCount += _receive_count;
+        tempSizeToReceive = _size - receivedSizeCount;
     }
+
+    // _receive_count = recv(sock, buffer, _size, 0);
+
+    // if (_receive_count < 0) {
+    //   perror("Receive failure");
+    //   abort();
+    // } else if (_receive_count != _size) {
+    //   perror("Incomplete");
+    //   abort();
+    // }
 
     server_tv_sec = (time_t) htonl(* (time_t *) (buffer + 2));
     server_tv_usec = (long int) htonl(* (long int *) (buffer + 6));
