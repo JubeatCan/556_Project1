@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
     if (_receive_count < 0) {
       perror("Receive failure");
       abort();
-    } else if (_receive_count < 10) {
+    } else if (_receive_count != _size) {
       perror("Incomplete");
       abort();
     }

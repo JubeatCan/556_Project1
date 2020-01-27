@@ -333,7 +333,8 @@ int main(int argc, char **argv)
                 time_t tv_sec = _timeval.tv_sec;
                 time_t tv_usec = _timeval.tv_usec;
 
-                char* response = (char*) malloc(size);
+                char* response;
+                response = (char*) malloc(size);
                 *(unsigned short *) response = (unsigned short) htons(size);
                 *(time_t *) (response + 2) = (time_t) htonl(tv_sec);
                 *(time_t *) (response + 6) = (time_t) htonl(tv_usec);
