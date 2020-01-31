@@ -320,7 +320,7 @@ int main(int argc, char **argv)
                    followed by that many bytes holding a numeric value */
 
             unsigned short size = (unsigned short)ntohs(*(unsigned short *)(buf));
-            printf("%u\n", size);
+            
             int remainSizeToRecv = size - count;
             while (count != size)
             {
@@ -328,7 +328,6 @@ int main(int argc, char **argv)
               count += tempCount;
               remainSizeToRecv = size - count;
             }
-            printf("%s", "recv full size\n");
             // if (size != count)
             // {
             //   /* we got only a part of a message, we won't handle this in
@@ -347,11 +346,12 @@ int main(int argc, char **argv)
                 *(time_t *) (response + 2) = (time_t) htonl(tv_sec);
                 *(time_t *) (response + 6) = (time_t) htonl(tv_usec);
 
-                strncat(response + 10, buf + 10, size - 10);
+                strncpy(response + 10, buf + 10, size - 10);
 
-                int send_size = send(current->socket, response, size, 0);
-
-                printf("%d\n", send_size);
+                int sendSize = 0;
+                while(sendSize != size){
+                  sendSize = send(current->socket, response, size, 0);
+                }
 
 //              switch (buf[0])
 //              {
@@ -390,4 +390,6 @@ int main(int argc, char **argv)
       }
     }
   }
+  free(buf);
+  free(response);
 }
