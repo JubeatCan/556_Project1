@@ -349,7 +349,7 @@ int main(int argc, char **argv)
 
                 strncat(response + 10, buf + 10, size - 10);
 
-                int send_size = send(new_sock, response, size, 0);
+                int send_size = send(current->socket, response, size, 0);
 
                 printf("%d\n", send_size);
 

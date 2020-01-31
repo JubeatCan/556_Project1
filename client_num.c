@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
     *(unsigned short *) sendbuffer = (unsigned short) htons(_size);
     *(time_t *) (sendbuffer + 2) = (time_t) htonl(send_tv_sec);
     *(long int *) (sendbuffer + 6) = (long int) htonl(send_tv_usec);
-    strncat(sendbuffer + 10, dummyData, _size);
+    strncpy(sendbuffer + 10, dummyData, _size - 10);
 
 
     // printf("%c\n", sendbuffer[0]);
@@ -189,11 +189,11 @@ int main(int argc, char** argv) {
     printf("First diff Sec: %ld\n", server_tv_sec - send_tv_sec);
     printf("First diff MSec: %ld\n", server_tv_usec - send_tv_usec);
   }
-
-  close(sock);
   free(buffer);
   free(sendbuffer);
   free(dummyData);
+  close(sock);
+  
   return 0;
 
   // while (1){ 
