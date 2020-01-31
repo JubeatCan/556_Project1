@@ -265,8 +265,7 @@ int main(int argc, char **argv)
               /* we are trying to dump too much data down the socket,
 		     it cannot take more for the time being 
 		     will have to go back to select and wait til select
-		     tells us the socket is ready for writing
-		  */
+		     tells us the socket is ready for writing*/
             }
             else
             {
@@ -283,10 +282,7 @@ int main(int argc, char **argv)
         if (FD_ISSET(current->socket, &read_set))
         {
           /* we have data from a client */
-
-          count = recv(current->socket, buf, BUF_LEN, 0);
-          printf("%d\n", count);
-
+          count = recv(current->socket, buf, 2, 0);
 
           if (count <= 0)
           {
@@ -321,16 +317,23 @@ int main(int argc, char **argv)
                    followed by that many bytes holding a numeric value */
 
             unsigned short size = (unsigned short)ntohs(*(unsigned short *)(buf));
-
-            if (size != count)
+            printf("%u\n", size);
+            int remainSizeToRecv = size - count;
+            while (count != size)
             {
-              /* we got only a part of a message, we won't handle this in
-                     this simple example */
-              printf("Message incomplete, something is still being transmitted\n");
-              return 0;
+              int tempCount = recv(current->socket, buf + count, remainSizeToRecv, 0);
+              count += tempCount;
+              remainSizeToRecv = size - count;
             }
-            else
-            {
+            printf("%s", "recv full size\n");
+            // if (size != count)
+            // {
+            //   /* we got only a part of a message, we won't handle this in
+            //          this simple example */
+            //   printf("Message incomplete, something is still being transmitted\n");
+            //   return 0;
+            // }
+
                 struct timeval _timeval;
                 gettimeofday(&_timeval, NULL);
 
@@ -343,9 +346,10 @@ int main(int argc, char **argv)
                 *(time_t *) (response + 2) = (time_t) htonl(tv_sec);
                 *(time_t *) (response + 6) = (time_t) htonl(tv_usec);
 
-                strncat(response + 10, buf + 10, size);
+                strncat(response + 10, buf + 10, size - 10);
 
                 send(new_sock, response, size, 0);
+                free(response);
 
 //              switch (buf[0])
 //              {
@@ -378,7 +382,7 @@ int main(int argc, char **argv)
               /* a complete message is received, print it out */
 //              printf("Received the number \"%d\". Client IP address is: %s\n",
 //                     num, inet_ntoa(current->client_addr.sin_addr));
-            }
+            // }
           }
         }
       }
