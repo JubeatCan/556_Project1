@@ -107,8 +107,11 @@ int main(int argc, char **argv)
 
   /* a buffer to read data */
   char *buf;
+  char *response;
+
   int BUF_LEN = 65535;
 
+  response = (char*) malloc(BUF_LEN);
   buf = (char *)malloc(BUF_LEN);
 
   /* initialize dummy head node of linked list */
@@ -340,16 +343,15 @@ int main(int argc, char **argv)
                 time_t tv_sec = _timeval.tv_sec;
                 time_t tv_usec = _timeval.tv_usec;
 
-                char* response;
-                response = (char*) malloc(size);
                 *(unsigned short *) response = (unsigned short) htons(size);
                 *(time_t *) (response + 2) = (time_t) htonl(tv_sec);
                 *(time_t *) (response + 6) = (time_t) htonl(tv_usec);
 
                 strncat(response + 10, buf + 10, size - 10);
 
-                send(new_sock, response, size, 0);
-                free(response);
+                int send_size = send(new_sock, response, size, 0);
+
+                printf("%d\n", send_size);
 
 //              switch (buf[0])
 //              {
