@@ -140,15 +140,16 @@ int main(int argc, char** argv) {
     strncat(sendbuffer + 10, dummyData, _size);
 
 
-    printf("%c\n", sendbuffer[0]);
+    // printf("%c\n", sendbuffer[0]);
     //send all
     int sentSizeCount = 0;
     int tempSizeToSent = _size;
     int _sent_count = 0;
 
     while (sentSizeCount != _size) {
-        _sent_count = send(sock, buffer + sentSizeCount, tempSizeToSent, 0);
-        printf("%d\n", _sent_count);
+      printf("Send size: %d\n", _size);
+        _sent_count = send(sock, sendbuffer + sentSizeCount, tempSizeToSent, 0);
+        printf("AlreadySend: %d\n", _sent_count);
         sentSizeCount += _sent_count;
         tempSizeToSent = _size - sentSizeCount;
     }
