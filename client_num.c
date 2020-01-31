@@ -42,6 +42,8 @@ int main(int argc, char** argv) {
   int _count = atoi(argv[4]);
 
   char *buffer, *sendbuffer;
+  char* dummyData;
+  dummyData = (char*) malloc((_size - 10) * sizeof(char));
   // int size = 500;
   // int count;
   // int num;
@@ -115,8 +117,7 @@ int main(int argc, char** argv) {
   //     printf("Here is what we got: %s", buffer);
   //   }
 
-  char* dummyData;
-  dummyData = (char*) malloc((_size - 10) * sizeof(char));
+  
   for (i = 0; i < _size - 10; i++) {
     dummyData[i] = 'A';
   }
@@ -145,7 +146,8 @@ int main(int argc, char** argv) {
     int sentSizeCount = 0;
     int tempSizeToSent = _size;
     int _sent_count = 0;
-
+    _size = (unsigned short) htons(* (unsigned short *) (sendbuffer));
+    printf("%d\n", _size);
     while (sentSizeCount != _size) {
       printf("Send size: %d\n", _size);
         _sent_count = send(sock, sendbuffer + sentSizeCount, tempSizeToSent, 0);
@@ -191,6 +193,7 @@ int main(int argc, char** argv) {
   close(sock);
   free(buffer);
   free(sendbuffer);
+  free(dummyData);
   return 0;
 
   // while (1){ 
