@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
   }
   /* our client socket */
   int sock;
+  int i;
 
   /* variables for identifying the server */
   unsigned int server_addr;
@@ -116,7 +117,7 @@ int main(int argc, char** argv) {
 
   char* dummyData;
   dummyData = (char*) malloc((_size - 10) * sizeof(char));
-  for (int i = 0; i < _size - 10; i++) {
+  for (i = 0; i < _size - 10; i++) {
     dummyData[i] = 'A';
   }
 
@@ -127,7 +128,7 @@ int main(int argc, char** argv) {
   time_t server_tv_sec;
   long int server_tv_usec;
   // Send timestamp PING
-  for (int i = 0; i < _count; i++) {
+  for (i = 0; i < _count; i++) {
 
 
     gettimeofday(&_timeval, NULL);
@@ -139,6 +140,7 @@ int main(int argc, char** argv) {
     strncat(sendbuffer + 10, dummyData, _size);
 
 
+    printf("%c\n", sendbuffer[0]);
     //send all
     int sentSizeCount = 0;
     int tempSizeToSent = _size;
@@ -146,10 +148,12 @@ int main(int argc, char** argv) {
 
     while (sentSizeCount != _size) {
         _sent_count = send(sock, buffer + sentSizeCount, tempSizeToSent, 0);
+        printf("%d\n", _sent_count);
         sentSizeCount += _sent_count;
         tempSizeToSent = _size - sentSizeCount;
     }
 
+    printf("Send Closed \n");
     // send(sock, sendbuffer, _size, 0);
 
 
