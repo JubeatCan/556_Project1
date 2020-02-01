@@ -36,6 +36,8 @@ struct response
     char * header_type;
     char * data;
     long dataLen;
+    long header_code_len;
+    long header_type_len;
 };
 
 /* remove the data structure associated with a connected socket
@@ -97,23 +99,27 @@ void* procResponse(char * path) {
     res = malloc(sizeof(struct response));
     res->dataLen = 0;
     res-> header_type = "Content-Type: text/html \r\n";
+    res->header_type_len = strlen(res->header_type) + 1;
 
     if (!check_path(path, strlen(path))) {
       printf("Not a good request.\n");
-      res -> header_code = "400 Bad Request \r\n";
+      res -> header_code = "HTTP/1.1 400 Bad Request \r\n";
+      res-> header_code_len = strlen(res->header_code) + 1;
       return res;
     }
     char cwd[PATH_MAX];
    if (getcwd(cwd, sizeof(cwd)) != NULL) {
        printf("Current working dir: %s\n", cwd);
    }
-    printf("%s/n", path);
+    printf("%s\n", path);
 
     FILE* file;
     file = fopen(path, "rb");
-    if (file == NULL) 
-        res-> header_code = "404 Not Found \r\n";
+    if (file == NULL) {
+        res-> header_code = "HTTP/1.1 404 Not Found \r\n";
+        res-> header_code_len = strlen(res->header_code) + 1;
         return res;
+    }
     fseek(file, 0, SEEK_END);
     res -> dataLen = ftell(file);
     fseek(file, 0, SEEK_SET);
@@ -129,7 +135,8 @@ void* procResponse(char * path) {
     //     res-> data ++;
     // }
     // res-> data = "\0";
-    res -> header_code = "200 OK \r\n";
+    res -> header_code = "HTTP/1.1 200 OK \r\n";
+    res-> header_code_len = strlen(res->header_code) + 1;
     return res;
     
 }
@@ -406,9 +413,41 @@ int main(int argc, char **argv)
             struct response * resp;
             resp = (struct response *)procResponse(realpath);
             printf("%ld\n", resp->dataLen);
-            printf ("%s" ,resp ->header_code);
+            printf ("%s\n" ,resp ->header_code);
             printf ("%s", resp ->header_type);
-            printf ("Body here:\n%s", resp->data);
+            printf ("Body here:\n%s\n", resp->data);
+
+            char * pageResponse;
+            long pageResponseSize = resp->header_code_len + resp->header_type_len + resp->dataLen;
+            printf("%ld", pageResponseSize);
+            pageResponse = malloc(pageResponseSize);
+            strncpy(resp->header_code, pageResponse, resp->header_code_len - 1);
+            pageResponse[resp->header_code_len - 1] = '0';
+            strncpy(resp->header_type, pageResponse + resp->header_code_len, resp->header_type_len - 1);
+            pageResponse[resp->header_code_len + resp->header_type_len - 1] = '0';
+            strncpy(resp->data, pageResponse + resp->header_code_len + resp->header_type_len, resp->dataLen);
+            printf("%s\n", pageResponse);
+
+
+            long sentSizeCount = 0;
+            long tempSizeToSent = pageResponseSize;
+            long _sent_count = 0;
+            while (sentSizeCount != pageResponseSize)
+            {
+               printf("%ld\n", sentSizeCount);
+              _sent_count = send(current->socket, pageResponse + sentSizeCount, tempSizeToSent, 0);
+              if (_sent_count <= 0)
+              {
+                continue;
+              }
+              sentSizeCount += _sent_count;
+              tempSizeToSent = pageResponseSize - sentSizeCount;
+            }
+            printf("send finish\n");
+
+            free(resp);
+            free(pageResponse);
+
           }
           else if (mode_flag == 1)
           {
