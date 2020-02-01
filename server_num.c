@@ -34,6 +34,7 @@ struct response
     char * header_code;
     char * header_type;
     char * data;
+    long dataLen;
 };
 
 /* remove the data structure associated with a connected socket
@@ -89,28 +90,40 @@ bool check_path(const char * path, int length) {
 
 
 struct reponse * procResponse(char * path) {
-    if (!check_path(path, strlen(path))) {
-      printf("Not a good request.\n");
-      
-    }
+    
+    
     struct response * res;
     res = malloc(sizeof(struct response));
+    res->dataLen = 0;
     res-> header_type = "Content-Type: text/html \r\n";
-    FILE* file;
-    file = fopen(path, "r");
-    if (file == NULL) 
-        res-> header_code = "404 Not Found";
-        return res;
-   
-    while (fgetc(file) != EOF) {
-        if (feof(file))
-            res-> header_code = "500 Internal Server Error";
-            break;
-        res-> data = fgetc(file);
-        res-> data ++;
+
+    if (!check_path(path, strlen(path))) {
+      printf("Not a good request.\n");
+      res -> header_code = "400 Bad Request \r\n";
+      return res;
     }
-    res-> data = "\0";
-    res -> header_code = "200 OK";
+
+    FILE* file;
+    file = fopen(path, "rb");
+    if (file == NULL) 
+        res-> header_code = "404 Not Found \r\n";
+        return res;
+    fseek(file, 0, SEEK_END);
+    res -> dataLen = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    res -> data = malloc(res -> dataLen + 1);
+    fread(res -> data, 1, res -> dataLen, file);
+    fclose(file);
+    // while (fgetc(file) != EOF) {
+    //     if (feof(file))
+    //         res-> header_code = "500 Internal Server Error";
+    //         break;
+    //     res-> data = fgetc(file);
+    //     res-> data ++;
+    // }
+    // res-> data = "\0";
+    res -> header_code = "200 OK \r\n";
     return res;
     
 }
@@ -382,6 +395,10 @@ int main(int argc, char **argv)
             
             struct response * resp;
             resp = procResponse(path);
+            printf("%ld\n", resp->dataLen);
+            printf ("%s" ,resp ->header_code);
+            printf ("%s", resp ->header_type);
+            printf ("Body here:\n%s", resp->data);
           }
           else if (mode_flag == 1)
           {
