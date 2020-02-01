@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/time.h>
+#include <math.h>
 
 /* simple client, takes two parameters, the server domain name,
    and the server port number */
@@ -128,6 +129,9 @@ int main(int argc, char** argv) {
   long int send_tv_usec;
   time_t server_tv_sec;
   long int server_tv_usec;
+  time_t recv_tv_sec;
+  long int recv_tv_usec;
+  long thousand = 1000 * 1000;
   // Send timestamp PING
   for (i = 0; i < _count; i++) {
 
@@ -147,16 +151,16 @@ int main(int argc, char** argv) {
     int tempSizeToSent = _size;
     int _sent_count = 0;
     _size = (unsigned short) htons(* (unsigned short *) (sendbuffer));
-    printf("%d\n", _size);
+    // printf("%d\n", _size);
     while (sentSizeCount != _size) {
-      printf("Send size: %d\n", _size);
+      // printf("Send size: %d\n", _size);
         _sent_count = send(sock, sendbuffer + sentSizeCount, tempSizeToSent, 0);
-        printf("AlreadySend: %d\n", _sent_count);
+        // printf("AlreadySend: %d\n", _sent_count);
         sentSizeCount += _sent_count;
         tempSizeToSent = _size - sentSizeCount;
     }
 
-    printf("Send Closed \n");
+    // printf("Send Closed \n");
     // send(sock, sendbuffer, _size, 0);
 
 
@@ -169,10 +173,10 @@ int main(int argc, char** argv) {
         _receive_count = recv(sock, buffer + receivedSizeCount, tempSizeToReceive, 0);
         receivedSizeCount += _receive_count;
         tempSizeToReceive = _size - receivedSizeCount;
-        // printf("%d\n", receivedSizeCount);
     }
-    printf("rece close\n");
-
+    gettimeofday(&_timeval, NULL);
+    recv_tv_sec = _timeval.tv_sec;
+    recv_tv_usec = _timeval.tv_usec;
     // _receive_count = recv(sock, buffer, _size, 0);
 
     // if (_receive_count < 0) {
@@ -186,10 +190,14 @@ int main(int argc, char** argv) {
     server_tv_sec = (time_t) htonl(* (time_t *) (buffer + 2));
     server_tv_usec = (long int) htonl(* (long int *) (buffer + 6));
 
-    printf("Server Received Timestamp Sec:  %ld\n", server_tv_sec);
-    printf("Server Received Timestamp MSec: %ld\n", server_tv_usec);
-    printf("First diff Sec: %ld\n", server_tv_sec - send_tv_sec);
-    printf("First diff MSec: %ld\n", server_tv_usec - send_tv_usec);
+    // printf("Server Received Timestamp Sec:  %ld\n", server_tv_sec);
+    // printf("Server Received Timestamp MSec: %ld\n", server_tv_usec);
+    // printf("First diff Sec: %ld\n", server_tv_sec - send_tv_sec);
+    // printf("First diff MSec: %ld\n", server_tv_usec - send_tv_usec);
+    printf("2-way delay in usec: %lf\n", (recv_tv_usec - send_tv_usec) * 1.0 / 1000);
+    printf("Bandwidth with error: %lf\n", (_size * 2 * 8 * 1.0 / ((recv_tv_usec - send_tv_usec) * 1.0 / pow(10, 6))) / thousand);
+    printf("1000Mbps delay: %ld\n", _size * 2 * 8 / thousand);
+    printf("----------------------------------\n");
   }
   free(buffer);
   free(sendbuffer);
