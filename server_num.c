@@ -77,6 +77,20 @@ int main(int argc, char **argv)
   /* socket and option variables */
   int sock, new_sock, max;
   int optval = 1;
+  char mode[] = "www";
+  int mode_flag = 0;
+
+  if (argc == 1) {
+    printf("Please configure port number.\n");
+    return 0;
+  }
+
+  if (argc == 4 && strcmp(mode, argv[2]) == 0) {
+    mode_flag = 2;
+    printf("Web Mode\n");
+  } else {
+    mode_flag = 1;
+  }
 
   /* server socket address variables */
   struct sockaddr_in sin, addr;
@@ -112,7 +126,7 @@ int main(int argc, char **argv)
 
   int BUF_LEN = 65540;
 
-  response = (char*) malloc(BUF_LEN);
+  response = (char *)malloc(BUF_LEN);
   buf = (char *)malloc(BUF_LEN);
 
   /* initialize dummy head node of linked list */
@@ -285,125 +299,136 @@ int main(int argc, char **argv)
 
         if (FD_ISSET(current->socket, &read_set))
         {
-          /* we have data from a client */
-          count = recv(current->socket, buf, 2, 0);
-
-          if (count <= 0)
+          if (mode_flag == 2) {
+            // printf("Web Mode\n");
+          }
+          else if (mode_flag == 1)
           {
-            /* something is wrong */
-            if (count == 0)
+
+            /* we have data from a client */
+            count = recv(current->socket, buf, 2, 0);
+
+            if (count <= 0)
             {
-              printf("Client closed connection. Client IP address is: %s\n", inet_ntoa(current->client_addr.sin_addr));
+              /* something is wrong */
+              if (count == 0)
+              {
+                printf("Client closed connection. Client IP address is: %s\n", inet_ntoa(current->client_addr.sin_addr));
+              }
+              else
+              {
+                perror("error receiving from a client");
+              }
+
+              /* connection is closed, clean up */
+              close(current->socket);
+              dump(&head, current->socket);
             }
+
             else
             {
-              perror("error receiving from a client");
-            }
+              /* we got count bytes of data from the client */
+              /* in general, the amount of data received in a recv()
+                    call may not be a complete application message. it
+                    is important to check the data received against
+                    the message format you expect. if only a part of a
+                    message has been received, you must wait and
+                    receive the rest later when more data is available
+                    to be read */
+              /* in this case, we expect a message where the first byte
+                    stores the number of bytes used to encode a number, 
+                    followed by that many bytes holding a numeric value */
 
-            /* connection is closed, clean up */
-            close(current->socket);
-            dump(&head, current->socket);
-          }
+              unsigned short size = (unsigned short)ntohs(*(unsigned short *)(buf));
+              printf("%d\n", size);
 
-          
-          else
-          {
-            /* we got count bytes of data from the client */
-            /* in general, the amount of data received in a recv()
-                   call may not be a complete application message. it
-                   is important to check the data received against
-                   the message format you expect. if only a part of a
-                   message has been received, you must wait and
-                   receive the rest later when more data is available
-                   to be read */
-            /* in this case, we expect a message where the first byte
-                   stores the number of bytes used to encode a number, 
-                   followed by that many bytes holding a numeric value */
+              int remainSizeToRecv = size - count;
+              while (count != size)
+              {
 
-            unsigned short size = (unsigned short)ntohs(*(unsigned short *)(buf));
-            printf("%d\n", size);
-            
-            int remainSizeToRecv = size - count;
-            while (count != size)
-            {
-              
-              int tempCount = recv(current->socket, buf + count, remainSizeToRecv, 0);
-              if(tempCount <= 0) {
-                continue;
-              }
-              count += tempCount;
-              remainSizeToRecv = size - count;
-              // printf("%d\n", remainSizeToRecv);
-            }
-
-            printf("recv finish\n");
-            // if (size != count)
-            // {
-            //   /* we got only a part of a message, we won't handle this in
-            //          this simple example */
-            //   printf("Message incomplete, something is still being transmitted\n");
-            //   return 0;
-            // }
-
-                struct timeval _timeval;
-                gettimeofday(&_timeval, NULL);
-
-                time_t tv_sec = _timeval.tv_sec;
-                time_t tv_usec = _timeval.tv_usec;
-
-                *(unsigned short *) response = (unsigned short) htons(size);
-                *(time_t *) (response + 2) = (time_t) htonl(tv_sec);
-                *(time_t *) (response + 6) = (time_t) htonl(tv_usec);
-
-                strncpy(response + 10, buf + 10, size - 10);
-
-                int sentSizeCount = 0;
-                int tempSizeToSent = size;
-                int _sent_count = 0;
-                while(sentSizeCount != size){
-                  // printf("%d\n", sentSizeCount);
-                  _sent_count = send(current->socket, response + sentSizeCount, tempSizeToSent, 0);
-                  if (_sent_count <= 0) {
-                    continue;
-                  }
-                  sentSizeCount += _sent_count;
-                  tempSizeToSent = size - sentSizeCount;
-              
+                int tempCount = recv(current->socket, buf + count, remainSizeToRecv, 0);
+                if (tempCount <= 0)
+                {
+                  continue;
                 }
-                printf("send finish\n");
+                count += tempCount;
+                remainSizeToRecv = size - count;
+                // printf("%d\n", remainSizeToRecv);
+              }
 
-//              switch (buf[0])
-//              {
-//              case 1:
-//                /* note the type casting here forces signed extension
-//		       to preserve the signedness of the value */
-//                /* note also the use of parentheses for pointer
-//		       dereferencing is critical here */
-//                num = (char)*(char *)(buf + 1);
-//                break;
-//              case 2:
-//                /* note the type casting here forces signed extension
-//		       to preserve the signedness of the value */
-//                /* note also the use of parentheses for pointer
-//		       dereferencing is critical here */
-//                /* note for 16 bit integers, byte ordering matters */
-//                num = (short)ntohs(*(short *)(buf + 1));
-//                break;
-//              case 4:
-//                /* note the type casting here forces signed extension
-//		       to preserve the signedness of the value */
-//                /* note also the use of parentheses for pointer
-//		       dereferencing is critical here */
-//                /* note for 32 bit integers, byte ordering matters */
-//                num = (int)ntohl(*(int *)(buf + 1));
-//                break;
-//              default:
-//                break;
-//              }
-              /* a complete message is received, print it out */
-//              printf("Received the number \"%d\". Client IP address is: %s\n",
-//                     num, inet_ntoa(current->client_addr.sin_addr));
+              printf("recv finish\n");
+              // if (size != count)
+              // {
+              //   /* we got only a part of a message, we won't handle this in
+              //          this simple example */
+              //   printf("Message incomplete, something is still being transmitted\n");
+              //   return 0;
+              // }
+
+              struct timeval _timeval;
+              gettimeofday(&_timeval, NULL);
+
+              time_t tv_sec = _timeval.tv_sec;
+              time_t tv_usec = _timeval.tv_usec;
+
+              *(unsigned short *)response = (unsigned short)htons(size);
+              *(time_t *)(response + 2) = (time_t)htonl(tv_sec);
+              *(time_t *)(response + 6) = (time_t)htonl(tv_usec);
+
+              strncpy(response + 10, buf + 10, size - 10);
+
+              int sentSizeCount = 0;
+              int tempSizeToSent = size;
+              int _sent_count = 0;
+              while (sentSizeCount != size)
+              {
+                // printf("%d\n", sentSizeCount);
+                _sent_count = send(current->socket, response + sentSizeCount, tempSizeToSent, 0);
+                if (_sent_count <= 0)
+                {
+                  continue;
+                }
+                sentSizeCount += _sent_count;
+                tempSizeToSent = size - sentSizeCount;
+              }
+              printf("send finish\n");
+            }
+            //              switch (buf[0])
+            //              {
+            //              case 1:
+            //                /* note the type casting here forces signed extension
+            //		       to preserve the signedness of the value */
+            //                /* note also the use of parentheses for pointer
+            //		       dereferencing is critical here */
+            //                num = (char)*(char *)(buf + 1);
+            //                break;
+            //              case 2:
+            //                /* note the type casting here forces signed extension
+            //		       to preserve the signedness of the value */
+            //                /* note also the use of parentheses for pointer
+            //		       dereferencing is critical here */
+            //                /* note for 16 bit integers, byte ordering matters */
+            //                num = (short)ntohs(*(short *)(buf + 1));
+            //                break;
+            //              case 4:
+            //                /* note the type casting here forces signed extension
+            //		       to preserve the signedness of the value */
+            //                /* note also the use of parentheses for pointer
+            //		       dereferencing is critical here */
+            //                /* note for 32 bit integers, byte ordering matters */
+            //                num = (int)ntohl(*(int *)(buf + 1));
+            //                break;
+            //              default:
+            //                break;
+            //              }
+            /* a complete message is received, print it out */
+            //              printf("Received the number \"%d\". Client IP address is: %s\n",
+            //                     num, inet_ntoa(current->client_addr.sin_addr));
             // }
+          }
+          else {
+            printf("Server Configure is bad, please retry.\n");
+            return 0;
           }
         }
       }

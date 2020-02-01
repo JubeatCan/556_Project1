@@ -13,9 +13,11 @@
 /* simple client, takes two parameters, the server domain name,
    and the server port number */
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
-  if (argc != 5) {
+  if (argc != 5)
+  {
     perror("4 parameters are required:\nhostname\nport\nsize\ncount\n");
     abort();
   }
@@ -32,19 +34,20 @@ int main(int argc, char** argv) {
   memset(&hints, 0, sizeof(struct addrinfo));
   hints.ai_family = AF_INET; /* indicates we want IPv4 */
 
-  if (getaddrinfo(argv[1], NULL, &hints, &getaddrinfo_result) == 0) {
-    server_addr = (unsigned int) ((struct sockaddr_in *) (getaddrinfo_result->ai_addr))->sin_addr.s_addr;
+  if (getaddrinfo(argv[1], NULL, &hints, &getaddrinfo_result) == 0)
+  {
+    server_addr = (unsigned int)((struct sockaddr_in *)(getaddrinfo_result->ai_addr))->sin_addr.s_addr;
     freeaddrinfo(getaddrinfo_result);
   }
 
   /* server port number */
-  unsigned short server_port = atoi (argv[2]);
+  unsigned short server_port = atoi(argv[2]);
   unsigned short _size = atoi(argv[3]);
   int _count = atoi(argv[4]);
 
   char *buffer, *sendbuffer;
-  char* dummyData;
-  dummyData = (char*) malloc((_size - 10) * sizeof(char));
+  char *dummyData;
+  dummyData = (char *)malloc((_size - 10) * sizeof(char));
   // int size = 500;
   // int count;
   // int num;
@@ -56,40 +59,39 @@ int main(int argc, char** argv) {
 
      leaves the potential for
      buffer overflow vulnerability */
-  buffer = (char *) malloc(_size);
+  buffer = (char *)malloc(_size);
   if (!buffer)
-    {
-      perror("failed to allocated buffer");
-      abort();
-    }
+  {
+    perror("failed to allocated buffer");
+    abort();
+  }
 
-  sendbuffer = (char *) malloc(_size);
+  sendbuffer = (char *)malloc(_size);
   if (!sendbuffer)
-    {
-      perror("failed to allocated sendbuffer");
-      abort();
-    }
-
+  {
+    perror("failed to allocated sendbuffer");
+    abort();
+  }
 
   /* create a socket */
-  if ((sock = socket (PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-    {
-      perror ("opening TCP socket");
-      abort ();
-    }
+  if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+  {
+    perror("opening TCP socket");
+    abort();
+  }
 
   /* fill in the server's address */
-  memset (&sin, 0, sizeof (sin));
+  memset(&sin, 0, sizeof(sin));
   sin.sin_family = AF_INET;
   sin.sin_addr.s_addr = server_addr;
   sin.sin_port = htons(server_port);
 
   /* connect to the server */
-  if (connect(sock, (struct sockaddr *) &sin, sizeof (sin)) < 0)
-    {
-      perror("connect to server failed");
-      abort();
-    }
+  if (connect(sock, (struct sockaddr *)&sin, sizeof(sin)) < 0)
+  {
+    perror("connect to server failed");
+    abort();
+  }
 
   /* everything looks good, since we are expecting a
      message from the server in this example, let's try receiving a
@@ -107,19 +109,19 @@ int main(int argc, char** argv) {
   // if (buffer[count-1] != 0)
   //   {
   //     /* In general, TCP recv can return any number of bytes, not
-	//  necessarily forming a complete message, so you need to
-	//  parse the input to see if a complete message has been received.
+  //  necessarily forming a complete message, so you need to
+  //  parse the input to see if a complete message has been received.
   //        if not, more calls to recv is needed to get a complete message.
   //     */
   //     printf("Message incomplete, something is still being transmitted\n");
-  //   } 
+  //   }
   // else
   //   {
   //     printf("Here is what we got: %s", buffer);
   //   }
 
-  
-  for (i = 0; i < _size - 10; i++) {
+  for (i = 0; i < _size - 10; i++)
+  {
     dummyData[i] = 'A';
   }
 
@@ -133,52 +135,54 @@ int main(int argc, char** argv) {
   long int recv_tv_usec;
   long thousand = 1000 * 1000;
   // Send timestamp PING
-  for (i = 0; i < _count; i++) {
-
+  for (i = 0; i < _count; i++)
+  {
 
     gettimeofday(&_timeval, NULL);
     send_tv_sec = _timeval.tv_sec;
     send_tv_usec = _timeval.tv_usec;
-    *(unsigned short *) sendbuffer = (unsigned short) htons(_size);
-    *(time_t *) (sendbuffer + 2) = (time_t) htonl(send_tv_sec);
-    *(long int *) (sendbuffer + 6) = (long int) htonl(send_tv_usec);
+    *(unsigned short *)sendbuffer = (unsigned short)htons(_size);
+    *(time_t *)(sendbuffer + 2) = (time_t)htonl(send_tv_sec);
+    *(long int *)(sendbuffer + 6) = (long int)htonl(send_tv_usec);
     strncpy(sendbuffer + 10, dummyData, _size - 10);
-
 
     // printf("%c\n", sendbuffer[0]);
     //send all
     int sentSizeCount = 0;
     int tempSizeToSent = _size;
     int _sent_count = 0;
-    _size = (unsigned short) htons(* (unsigned short *) (sendbuffer));
+    _size = (unsigned short)htons(*(unsigned short *)(sendbuffer));
     // printf("%d\n", _size);
-    while (sentSizeCount != _size) {
+    while (sentSizeCount != _size)
+    {
       // printf("Send size: %d\n", _size);
-        _sent_count = send(sock, sendbuffer + sentSizeCount, tempSizeToSent, 0);
-        if (_sent_count <= 0) {
-          continue;
-        }
-        // printf("AlreadySend: %d\n", _sent_count);
-        sentSizeCount += _sent_count;
-        tempSizeToSent = _size - sentSizeCount;
+      _sent_count = send(sock, sendbuffer + sentSizeCount, tempSizeToSent, 0);
+      if (_sent_count <= 0)
+      {
+        continue;
+      }
+      // printf("AlreadySend: %d\n", _sent_count);
+      sentSizeCount += _sent_count;
+      tempSizeToSent = _size - sentSizeCount;
     }
 
     // printf("Send Closed \n");
     // send(sock, sendbuffer, _size, 0);
-
 
     //Receive The Whole Frame
     int receivedSizeCount = 0;
     int tempSizeToReceive = _size;
     int _receive_count = 0;
 
-    while (receivedSizeCount != _size) {
-        _receive_count = recv(sock, buffer + receivedSizeCount, tempSizeToReceive, 0);
-        if (_receive_count <= 0) {
-          continue;
-        }
-        receivedSizeCount += _receive_count;
-        tempSizeToReceive = _size - receivedSizeCount;
+    while (receivedSizeCount != _size)
+    {
+      _receive_count = recv(sock, buffer + receivedSizeCount, tempSizeToReceive, 0);
+      if (_receive_count <= 0)
+      {
+        continue;
+      }
+      receivedSizeCount += _receive_count;
+      tempSizeToReceive = _size - receivedSizeCount;
     }
     gettimeofday(&_timeval, NULL);
     // recv_tv_sec = _timeval.tv_sec;
@@ -193,8 +197,8 @@ int main(int argc, char** argv) {
     //   abort();
     // }
 
-    server_tv_sec = (time_t) htonl(* (time_t *) (buffer + 2));
-    server_tv_usec = (long int) htonl(* (long int *) (buffer + 6));
+    server_tv_sec = (time_t)htonl(*(time_t *)(buffer + 2));
+    server_tv_usec = (long int)htonl(*(long int *)(buffer + 6));
 
     // printf("Server Received Timestamp Sec:  %ld\n", server_tv_sec);
     // printf("Server Received Timestamp MSec: %ld\n", server_tv_usec);
@@ -209,10 +213,10 @@ int main(int argc, char** argv) {
   free(sendbuffer);
   free(dummyData);
   close(sock);
-  
+
   return 0;
 
-  // while (1){ 
+  // while (1){
   //   printf("\nEnter the type of the number to send (options are char, short, int, or bye to quit): ");
   //   fgets(buffer, size, stdin);
   //   if (strncmp(buffer, "bye", 3) == 0) {
@@ -224,7 +228,7 @@ int main(int argc, char** argv) {
   //   }
 
   //   /* first byte of the sendbuffer is used to describe the number of
-  //      bytes used to encode a number, the number value follows the first 
+  //      bytes used to encode a number, the number value follows the first
   //      byte */
   //   if (strncmp(buffer, "char", 4) == 0) {
   //     sendbuffer[0] = 1;
