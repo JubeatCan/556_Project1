@@ -11,6 +11,7 @@
 #include <sys/time.h>
 #include <math.h>
 #include <stdbool.h>
+#include <limits.h>
 
 /**************************************************/
 /* a few simple linked list functions             */
@@ -102,6 +103,11 @@ void* procResponse(char * path) {
       res -> header_code = "400 Bad Request \r\n";
       return res;
     }
+    char cwd[PATH_MAX];
+   if (getcwd(cwd, sizeof(cwd)) != NULL) {
+       printf("Current working dir: %s\n", cwd);
+   }
+    printf("%s/n", path);
 
     FILE* file;
     file = fopen(path, "rb");
@@ -392,9 +398,13 @@ int main(int argc, char **argv)
               continue;
             }
             path = strtok(NULL, " ");
+            char * realpath = malloc(strlen(path) +1+1);
+            strcpy(realpath+1, path);
+            realpath[0] = '.';
+            realpath[strlen(path) +1] = '\0';
             
             struct response * resp;
-            resp = (struct response *)procResponse(path);
+            resp = (struct response *)procResponse(realpath);
             printf("%ld\n", resp->dataLen);
             printf ("%s" ,resp ->header_code);
             printf ("%s", resp ->header_type);
