@@ -29,6 +29,13 @@ struct node
   struct node *next;
 };
 
+struct response
+{
+    char * header_code;
+    char * header_type;
+    char * data;
+};
+
 /* remove the data structure associated with a connected socket
    used when tearing down the connection */
 void dump(struct node *head, int socket)
@@ -78,6 +85,34 @@ bool check_path(const char * path, int length) {
     }
   }
   return true;
+}
+
+
+struct reponse * procResponse(char * path) {
+    if (!check_path(path, strlen(path))) {
+      printf("Not a good request.\n");
+      
+    }
+    struct response * res;
+    res = malloc(sizeof(struct response));
+    res-> header_type = "Content-Type: text/html \r\n";
+    FILE* file;
+    file = fopen(path, "r");
+    if (file == NULL) 
+        res-> header_code = "404 Not Found";
+        return res;
+   
+    while (fgetc(file) != EOF) {
+        if (feof(file))
+            res-> header_code = "500 Internal Server Error";
+            break;
+        res-> data = fgetc(file);
+        res-> data ++;
+    }
+    res-> data = "\0";
+    res -> header_code = "200 OK";
+    return res;
+    
 }
 
 /*****************************************/
@@ -344,12 +379,9 @@ int main(int argc, char **argv)
               continue;
             }
             path = strtok(NULL, " ");
-
-            if (!check_path(path, strlen(path))) {
-              printf("Not a good request.\n");
-            }
             
-
+            struct response * resp;
+            resp = procResponse(path);
           }
           else if (mode_flag == 1)
           {
