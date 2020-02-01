@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <sys/time.h>
 #include <math.h>
+#include <stdbool.h>
 
 /**************************************************/
 /* a few simple linked list functions             */
@@ -66,6 +67,19 @@ void add(struct node *head, int socket, struct sockaddr_in addr)
   head->next = new_node;
 }
 
+bool check_path(const char * path, int length) {
+  int i = 0;
+  char * pattern[] = "../";
+  if (length >= 3) {
+    for (i = 0; i <= length - 3; i++) {
+      if (strncmp(path + i, pattern, 3) == 0) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 /*****************************************/
 /* main program                          */
 /*****************************************/
@@ -88,8 +102,13 @@ int main(int argc, char **argv)
   if (argc == 4 && strcmp(mode, argv[2]) == 0) {
     mode_flag = 2;
     printf("Web Mode\n");
+    if (chdir(argv[3]) != 0) {
+      perror("Cannot set root directory.");
+      return 0;
+    }
   } else {
     mode_flag = 1;
+    printf("Ping-Pong Mode\n");
   }
 
   /* server socket address variables */
@@ -300,11 +319,12 @@ int main(int argc, char **argv)
         if (FD_ISSET(current->socket, &read_set))
         {
           if (mode_flag == 2) {
-            // printf("Web Mode\n");
+            // Web Mode
+            
           }
           else if (mode_flag == 1)
           {
-
+            // Ping-Pong Mode
             /* we have data from a client */
             count = recv(current->socket, buf, 2, 0);
 
