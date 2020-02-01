@@ -326,16 +326,9 @@ int main(int argc, char **argv)
             int remainSizeToRecv = size - count;
             while (count != size)
             {
-              if (remainSizeToRecv > 10000) {
-                remainSizeToRecv = 10000;
-              }
               
               int tempCount = recv(current->socket, buf + count, remainSizeToRecv, 0);
-              if(tempCount > 0) {
-                printf("%d\n", tempCount);
-              } else {
-                perror("nnn");
-                // abort();
+              if(tempCount <= 0) {
                 continue;
               }
               count += tempCount;
@@ -370,6 +363,9 @@ int main(int argc, char **argv)
                 while(sentSizeCount != size){
                   // printf("%d\n", sentSizeCount);
                   _sent_count = send(current->socket, response + sentSizeCount, tempSizeToSent, 0);
+                  if (_sent_count <= 0) {
+                    continue;
+                  }
                   sentSizeCount += _sent_count;
                   tempSizeToSent = size - sentSizeCount;
               

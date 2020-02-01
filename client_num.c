@@ -155,6 +155,9 @@ int main(int argc, char** argv) {
     while (sentSizeCount != _size) {
       // printf("Send size: %d\n", _size);
         _sent_count = send(sock, sendbuffer + sentSizeCount, tempSizeToSent, 0);
+        if (_sent_count <= 0) {
+          continue;
+        }
         // printf("AlreadySend: %d\n", _sent_count);
         sentSizeCount += _sent_count;
         tempSizeToSent = _size - sentSizeCount;
@@ -171,6 +174,9 @@ int main(int argc, char** argv) {
 
     while (receivedSizeCount != _size) {
         _receive_count = recv(sock, buffer + receivedSizeCount, tempSizeToReceive, 0);
+        if (_receive_count <= 0) {
+          continue;
+        }
         receivedSizeCount += _receive_count;
         tempSizeToReceive = _size - receivedSizeCount;
     }
