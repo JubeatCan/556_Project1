@@ -99,7 +99,7 @@ int main(int argc, char **argv)
     return 0;
   }
 
-  if (argc == 4 && strcmp(mode, argv[2]) == 0) {
+  if (argc == 4 && strncmp(mode, argv[2], 3) == 0) {
     mode_flag = 2;
     printf("Web Mode\n");
     if (chdir(argv[3]) != 0) {
