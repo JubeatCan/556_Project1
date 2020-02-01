@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <sys/time.h>
+#include <math.h>
 
 /**************************************************/
 /* a few simple linked list functions             */
@@ -109,7 +110,7 @@ int main(int argc, char **argv)
   char *buf;
   char *response;
 
-  int BUF_LEN = 65535;
+  int BUF_LEN = 65540;
 
   response = (char*) malloc(BUF_LEN);
   buf = (char *)malloc(BUF_LEN);
@@ -260,7 +261,7 @@ int main(int argc, char **argv)
 	         but here for simplicity, let's say we are just
                  sending whatever is in the buffer buf
                */
-          count = send(current->socket, buf, BUF_LEN, MSG_DONTWAIT);
+          // count = send(current->socket, buf, BUF_LEN, MSG_DONTWAIT);
           if (count < 0)
           {
             if (errno == EAGAIN)
@@ -320,14 +321,29 @@ int main(int argc, char **argv)
                    followed by that many bytes holding a numeric value */
 
             unsigned short size = (unsigned short)ntohs(*(unsigned short *)(buf));
+            printf("%d\n", size);
             
             int remainSizeToRecv = size - count;
             while (count != size)
             {
+              if (remainSizeToRecv > 10000) {
+                remainSizeToRecv = 10000;
+              }
+              
               int tempCount = recv(current->socket, buf + count, remainSizeToRecv, 0);
+              if(tempCount > 0) {
+                printf("%d\n", tempCount);
+              } else {
+                perror("nnn");
+                // abort();
+                continue;
+              }
               count += tempCount;
               remainSizeToRecv = size - count;
+              // printf("%d\n", remainSizeToRecv);
             }
+
+            printf("recv finish\n");
             // if (size != count)
             // {
             //   /* we got only a part of a message, we won't handle this in
@@ -352,10 +368,13 @@ int main(int argc, char **argv)
                 int tempSizeToSent = size;
                 int _sent_count = 0;
                 while(sentSizeCount != size){
+                  // printf("%d\n", sentSizeCount);
                   _sent_count = send(current->socket, response + sentSizeCount, tempSizeToSent, 0);
                   sentSizeCount += _sent_count;
                   tempSizeToSent = size - sentSizeCount;
+              
                 }
+                printf("send finish\n");
 
 //              switch (buf[0])
 //              {

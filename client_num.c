@@ -169,7 +169,9 @@ int main(int argc, char** argv) {
         _receive_count = recv(sock, buffer + receivedSizeCount, tempSizeToReceive, 0);
         receivedSizeCount += _receive_count;
         tempSizeToReceive = _size - receivedSizeCount;
+        // printf("%d\n", receivedSizeCount);
     }
+    printf("rece close\n");
 
     // _receive_count = recv(sock, buffer, _size, 0);
 
