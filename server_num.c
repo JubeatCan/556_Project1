@@ -348,9 +348,13 @@ int main(int argc, char **argv)
 
                 strncpy(response + 10, buf + 10, size - 10);
 
-                int sendSize = 0;
-                while(sendSize != size){
-                  sendSize = send(current->socket, response, size, 0);
+                int sentSizeCount = 0;
+                int tempSizeToSent = size;
+                int _sent_count = 0;
+                while(sentSizeCount != size){
+                  _sent_count = send(current->socket, response + sentSizeCount, tempSizeToSent, 0);
+                  sentSizeCount += _sent_count;
+                  tempSizeToSent = size - sentSizeCount;
                 }
 
 //              switch (buf[0])
