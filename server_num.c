@@ -320,7 +320,12 @@ int main(int argc, char **argv)
         {
           if (mode_flag == 2) {
             // Web Mode
-            
+            while(1)
+            {
+              count = recv(current->socket, buf, BUF_LEN, 0);
+              if(strncmp(buf + count - 4, "\r\n\r\n", 4) == 0)
+                break;
+            }
           }
           else if (mode_flag == 1)
           {
