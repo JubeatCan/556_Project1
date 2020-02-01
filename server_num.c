@@ -77,7 +77,7 @@ void add(struct node *head, int socket, struct sockaddr_in addr)
 
 bool check_path(const char * path, int length) {
   int i = 0;
-  char * pattern[] = "../";
+  char pattern[] = "../";
   if (length >= 3) {
     for (i = 0; i <= length - 3; i++) {
       if (strncmp(path + i, pattern, 3) == 0) {
@@ -89,7 +89,7 @@ bool check_path(const char * path, int length) {
 }
 
 
-struct reponse * procResponse(char * path) {
+void* procResponse(char * path) {
     
     
     struct response * res;
@@ -385,7 +385,7 @@ int main(int argc, char **argv)
 
             // parse GET
             char * path;
-            char * check[] = "GET";
+            char check[] = "GET";
             path = strtok(buf, " ");
             if (strncmp(path, check, 3) != 0) {
               printf("Not a GET request.\n");
@@ -394,7 +394,7 @@ int main(int argc, char **argv)
             path = strtok(NULL, " ");
             
             struct response * resp;
-            resp = procResponse(path);
+            resp = (struct response *)procResponse(path);
             printf("%ld\n", resp->dataLen);
             printf ("%s" ,resp ->header_code);
             printf ("%s", resp ->header_type);
