@@ -419,13 +419,19 @@ int main(int argc, char **argv)
 
             char * pageResponse;
             long pageResponseSize = resp->header_code_len + resp->header_type_len + resp->dataLen;
-            printf("%ld", pageResponseSize);
+            printf("1\n");
             pageResponse = malloc(pageResponseSize);
-            strncpy(resp->header_code, pageResponse, resp->header_code_len - 1);
+            printf("2\n");
+            strncpy(pageResponse, resp->header_code, resp->header_code_len - 1);
+                        printf("3\n");
             pageResponse[resp->header_code_len - 1] = '0';
-            strncpy(resp->header_type, pageResponse + resp->header_code_len, resp->header_type_len - 1);
+                        printf("4\n");
+            strncpy(pageResponse + resp->header_code_len, resp->header_type, resp->header_type_len - 1);
+                        printf("5\n");
             pageResponse[resp->header_code_len + resp->header_type_len - 1] = '0';
-            strncpy(resp->data, pageResponse + resp->header_code_len + resp->header_type_len, resp->dataLen);
+                        printf("6\n");
+            strncpy(pageResponse + resp->header_code_len + resp->header_type_len, resp->data, resp->dataLen);
+                        printf("7\n");
             printf("%s\n", pageResponse);
 
 
@@ -434,7 +440,7 @@ int main(int argc, char **argv)
             long _sent_count = 0;
             while (sentSizeCount != pageResponseSize)
             {
-               printf("%ld\n", sentSizeCount);
+               
               _sent_count = send(current->socket, pageResponse + sentSizeCount, tempSizeToSent, 0);
               if (_sent_count <= 0)
               {
@@ -442,6 +448,7 @@ int main(int argc, char **argv)
               }
               sentSizeCount += _sent_count;
               tempSizeToSent = pageResponseSize - sentSizeCount;
+              printf("%ld\n", sentSizeCount);
             }
             printf("send finish\n");
 
