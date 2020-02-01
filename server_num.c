@@ -323,12 +323,33 @@ int main(int argc, char **argv)
             int tempOffset = 0;
             while(1)
             {
+              if (tempOffset > BUF_LEN) {
+                break;
+              }
               count = recv(current->socket, buf + tempOffset, BUF_LEN, 0);
+              if (count < 0) {
+                continue;
+              }
               if(strncmp(buf + count - 4, "\r\n\r\n", 4) == 0)
                 break;
-              
               tempOffset += count;
             }
+
+            // parse GET
+            char * path;
+            char * check[] = "GET";
+            path = strtok(buf, " ");
+            if (strncmp(path, check, 3) != 0) {
+              printf("Not a GET request.\n");
+              continue;
+            }
+            path = strtok(NULL, " ");
+
+            if (!check_path(path, strlen(path))) {
+              printf("Not a good request.\n");
+            }
+            
+
           }
           else if (mode_flag == 1)
           {
