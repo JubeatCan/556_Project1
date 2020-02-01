@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
   long int send_tv_usec;
   time_t server_tv_sec;
   long int server_tv_usec;
-  time_t recv_tv_sec;
+  // time_t recv_tv_sec;
   long int recv_tv_usec;
   long thousand = 1000 * 1000;
   // Send timestamp PING
@@ -181,7 +181,7 @@ int main(int argc, char** argv) {
         tempSizeToReceive = _size - receivedSizeCount;
     }
     gettimeofday(&_timeval, NULL);
-    recv_tv_sec = _timeval.tv_sec;
+    // recv_tv_sec = _timeval.tv_sec;
     recv_tv_usec = _timeval.tv_usec;
     // _receive_count = recv(sock, buffer, _size, 0);
 
