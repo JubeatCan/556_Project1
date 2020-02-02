@@ -418,17 +418,17 @@ int main(int argc, char **argv)
             printf ("Body here:\n%s\n", resp->data);
 
             char * pageResponse;
-            long pageResponseSize = resp->header_code_len + resp->header_type_len + resp->dataLen;
+            long pageResponseSize = resp->header_code_len + resp->header_type_len + resp->dataLen + 4;
             printf("1\n");
-            pageResponse = malloc(pageResponseSize + 4);
+            pageResponse = malloc(pageResponseSize);
             printf("2\n");
             strncpy(pageResponse, resp->header_code, resp->header_code_len - 1);
                         printf("3\n");
-            pageResponse[resp->header_code_len - 1] = '\0';
+            pageResponse[resp->header_code_len - 1] = '0';
                         printf("4\n");
             strncpy(pageResponse + resp->header_code_len, resp->header_type, resp->header_type_len - 1);
                         printf("5\n");
-            pageResponse[resp->header_code_len + resp->header_type_len - 1] = '\0';
+            pageResponse[resp->header_code_len + resp->header_type_len - 1] = '0';
                         printf("6\n");
             strncpy(pageResponse + resp->header_code_len + resp->header_type_len, resp->data, resp->dataLen);
                         printf("7\n");
