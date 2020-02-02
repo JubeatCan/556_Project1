@@ -455,6 +455,8 @@ int main(int argc, char **argv)
 
             free(resp);
             free(pageResponse);
+            close(current->socket);
+            dump(&head, current->socket);
 
           }
           else if (mode_flag == 1)
