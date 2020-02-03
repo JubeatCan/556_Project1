@@ -419,21 +419,13 @@ int main(int argc, char **argv)
 
             char * pageResponse;
             long pageResponseSize = resp->header_code_len + resp->header_type_len + resp->dataLen + 5;
-            printf("1\n");
             pageResponse = malloc(pageResponseSize);
-            printf("2\n");
             strncpy(pageResponse, resp->header_code, resp->header_code_len - 1);
-                        printf("3\n");
             pageResponse[resp->header_code_len - 1] = '0';
-                        printf("4\n");
             strncpy(pageResponse + resp->header_code_len, resp->header_type, resp->header_type_len - 1);
-                        printf("5\n");
             pageResponse[resp->header_code_len + resp->header_type_len - 1] = '\r';
-                        printf("6\n");
             strncpy(pageResponse + resp->header_code_len + resp->header_type_len, "\n", 1);
             strncpy(pageResponse + resp->header_code_len + resp->header_type_len + 1, resp->data, resp->dataLen);
-                        printf("7\n");
-            printf("%s\n", pageResponse);
             strncpy(pageResponse + resp->header_code_len + resp->header_type_len + resp->dataLen + 1, "\r\n\r\n", 4);
 
 
@@ -450,7 +442,7 @@ int main(int argc, char **argv)
               }
               sentSizeCount += _sent_count;
               tempSizeToSent = pageResponseSize - sentSizeCount;
-              printf("%ld\n", sentSizeCount);
+              // printf("%ld\n", sentSizeCount);
             }
             printf("send finish\n");
 
