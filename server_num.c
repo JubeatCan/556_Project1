@@ -32,12 +32,12 @@ struct node
 
 struct response
 {
-    char * header_code;
-    char * header_type;
-    char * data;
-    long dataLen;
-    long header_code_len;
-    long header_type_len;
+  char *header_code;
+  char *header_type;
+  char *data;
+  long dataLen;
+  long header_code_len;
+  long header_type_len;
 };
 
 /* remove the data structure associated with a connected socket
@@ -78,12 +78,16 @@ void add(struct node *head, int socket, struct sockaddr_in addr)
   head->next = new_node;
 }
 
-bool check_path(const char * path, int length) {
+bool check_path(const char *path, int length)
+{
   int i = 0;
   char pattern[] = "../";
-  if (length >= 3) {
-    for (i = 0; i <= length - 3; i++) {
-      if (strncmp(path + i, pattern, 3) == 0) {
+  if (length >= 3)
+  {
+    for (i = 0; i <= length - 3; i++)
+    {
+      if (strncmp(path + i, pattern, 3) == 0)
+      {
         return false;
       }
     }
@@ -91,54 +95,55 @@ bool check_path(const char * path, int length) {
   return true;
 }
 
+void *procResponse(char *path)
+{
 
-void* procResponse(char * path) {
-    
-    
-    struct response * res;
-    res = malloc(sizeof(struct response));
-    res->dataLen = 0;
-    res-> header_type = "Content-Type: text/html \r\n";
-    res->header_type_len = strlen(res->header_type) + 1;
+  struct response *res;
+  res = malloc(sizeof(struct response));
+  res->dataLen = 0;
+  res->header_type = "Content-Type: text/html \r\n";
+  res->header_type_len = strlen(res->header_type) + 1;
 
-    if (!check_path(path, strlen(path))) {
-      printf("Not a good request.\n");
-      res -> header_code = "HTTP/1.1 400 Bad Request \r\n";
-      res-> header_code_len = strlen(res->header_code) + 1;
-      return res;
-    }
-    char cwd[PATH_MAX];
-   if (getcwd(cwd, sizeof(cwd)) != NULL) {
-       printf("Current working dir: %s\n", cwd);
-   }
-    printf("%s\n", path);
-
-    FILE* file;
-    file = fopen(path, "rb");
-    if (file == NULL) {
-        res-> header_code = "HTTP/1.1 404 Not Found \r\n";
-        res-> header_code_len = strlen(res->header_code) + 1;
-        return res;
-    }
-    fseek(file, 0, SEEK_END);
-    res -> dataLen = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    res -> data = malloc(res -> dataLen + 1);
-    fread(res -> data, 1, res -> dataLen, file);
-    fclose(file);
-    // while (fgetc(file) != EOF) {
-    //     if (feof(file))
-    //         res-> header_code = "500 Internal Server Error";
-    //         break;
-    //     res-> data = fgetc(file);
-    //     res-> data ++;
-    // }
-    // res-> data = "\0";
-    res -> header_code = "HTTP/1.1 200 OK \r\n";
-    res-> header_code_len = strlen(res->header_code) + 1;
+  if (!check_path(path, strlen(path)))
+  {
+    printf("Not a good request.\n");
+    res->header_code = "HTTP/1.1 400 Bad Request \r\n";
+    res->header_code_len = strlen(res->header_code) + 1;
     return res;
-    
+  }
+  char cwd[PATH_MAX];
+  if (getcwd(cwd, sizeof(cwd)) != NULL)
+  {
+    printf("Current working dir: %s\n", cwd);
+  }
+  printf("%s\n", path);
+
+  FILE *file;
+  file = fopen(path, "rb");
+  if (file == NULL)
+  {
+    res->header_code = "HTTP/1.1 404 Not Found \r\n";
+    res->header_code_len = strlen(res->header_code) + 1;
+    return res;
+  }
+  fseek(file, 0, SEEK_END);
+  res->dataLen = ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  res->data = malloc(res->dataLen + 1);
+  fread(res->data, 1, res->dataLen, file);
+  fclose(file);
+  // while (fgetc(file) != EOF) {
+  //     if (feof(file))
+  //         res-> header_code = "500 Internal Server Error";
+  //         break;
+  //     res-> data = fgetc(file);
+  //     res-> data ++;
+  // }
+  // res-> data = "\0";
+  res->header_code = "HTTP/1.1 200 OK \r\n";
+  res->header_code_len = strlen(res->header_code) + 1;
+  return res;
 }
 
 /*****************************************/
@@ -155,19 +160,24 @@ int main(int argc, char **argv)
   char mode[] = "www";
   int mode_flag = 0;
 
-  if (argc == 1) {
+  if (argc == 1)
+  {
     printf("Please configure port number.\n");
     return 0;
   }
 
-  if (argc == 4 && strncmp(mode, argv[2], 3) == 0) {
+  if (argc == 4 && strncmp(mode, argv[2], 3) == 0)
+  {
     mode_flag = 2;
     printf("Web Mode\n");
-    if (chdir(argv[3]) != 0) {
+    if (chdir(argv[3]) != 0)
+    {
       perror("Cannot set root directory.");
       return 0;
     }
-  } else {
+  }
+  else
+  {
     mode_flag = 1;
     printf("Ping-Pong Mode\n");
   }
@@ -379,45 +389,49 @@ int main(int argc, char **argv)
 
         if (FD_ISSET(current->socket, &read_set))
         {
-          if (mode_flag == 2) {
+          if (mode_flag == 2)
+          {
             // Web Mode
             int tempOffset = 0;
-            while(1)
+            while (1)
             {
-              if (tempOffset > BUF_LEN) {
+              if (tempOffset > BUF_LEN)
+              {
                 break;
               }
               count = recv(current->socket, buf + tempOffset, BUF_LEN, 0);
-              if (count < 0) {
+              if (count < 0)
+              {
                 continue;
               }
-              if(strncmp(buf + count - 4, "\r\n\r\n", 4) == 0)
+              if (strncmp(buf + count - 4, "\r\n\r\n", 4) == 0)
                 break;
               tempOffset += count;
             }
 
             // parse GET
-            char * path;
+            char *path;
             char check[] = "GET";
             path = strtok(buf, " ");
-            if (strncmp(path, check, 3) != 0) {
+            if (strncmp(path, check, 3) != 0)
+            {
               printf("Not a GET request.\n");
               continue;
             }
             path = strtok(NULL, " ");
-            char * realpath = malloc(strlen(path) +1+1);
-            strcpy(realpath+1, path);
+            char *realpath = malloc(strlen(path) + 1 + 1);
+            strcpy(realpath + 1, path);
             realpath[0] = '.';
-            realpath[strlen(path) +1] = '\0';
-            
-            struct response * resp;
+            realpath[strlen(path) + 1] = '\0';
+
+            struct response *resp;
             resp = (struct response *)procResponse(realpath);
             printf("%ld\n", resp->dataLen);
-            printf ("%s\n" ,resp ->header_code);
-            printf ("%s", resp ->header_type);
-            printf ("Body here:\n%s\n", resp->data);
+            printf("%s\n", resp->header_code);
+            printf("%s", resp->header_type);
+            printf("Body here:\n%s\n", resp->data);
 
-            char * pageResponse;
+            char *pageResponse;
             long pageResponseSize = resp->header_code_len + resp->header_type_len + resp->dataLen + 5;
             pageResponse = malloc(pageResponseSize);
             strncpy(pageResponse, resp->header_code, resp->header_code_len - 1);
@@ -428,13 +442,12 @@ int main(int argc, char **argv)
             strncpy(pageResponse + resp->header_code_len + resp->header_type_len + 1, resp->data, resp->dataLen);
             strncpy(pageResponse + resp->header_code_len + resp->header_type_len + resp->dataLen + 1, "\r\n\r\n", 4);
 
-
             long sentSizeCount = 0;
             long tempSizeToSent = pageResponseSize;
             long _sent_count = 0;
             while (sentSizeCount != pageResponseSize)
             {
-               
+
               _sent_count = send(current->socket, pageResponse + sentSizeCount, tempSizeToSent, 0);
               if (_sent_count <= 0)
               {
@@ -450,7 +463,6 @@ int main(int argc, char **argv)
             free(pageResponse);
             close(current->socket);
             dump(&head, current->socket);
-
           }
           else if (mode_flag == 1)
           {
@@ -477,17 +489,6 @@ int main(int argc, char **argv)
 
             else
             {
-              /* we got count bytes of data from the client */
-              /* in general, the amount of data received in a recv()
-                    call may not be a complete application message. it
-                    is important to check the data received against
-                    the message format you expect. if only a part of a
-                    message has been received, you must wait and
-                    receive the rest later when more data is available
-                    to be read */
-              /* in this case, we expect a message where the first byte
-                    stores the number of bytes used to encode a number, 
-                    followed by that many bytes holding a numeric value */
 
               unsigned short size = (unsigned short)ntohs(*(unsigned short *)(buf));
               printf("%d\n", size);
@@ -503,17 +504,9 @@ int main(int argc, char **argv)
                 }
                 count += tempCount;
                 remainSizeToRecv = size - count;
-                // printf("%d\n", remainSizeToRecv);
               }
 
               printf("recv finish\n");
-              // if (size != count)
-              // {
-              //   /* we got only a part of a message, we won't handle this in
-              //          this simple example */
-              //   printf("Message incomplete, something is still being transmitted\n");
-              //   return 0;
-              // }
 
               struct timeval _timeval;
               gettimeofday(&_timeval, NULL);
@@ -543,40 +536,9 @@ int main(int argc, char **argv)
               }
               printf("send finish\n");
             }
-            //              switch (buf[0])
-            //              {
-            //              case 1:
-            //                /* note the type casting here forces signed extension
-            //		       to preserve the signedness of the value */
-            //                /* note also the use of parentheses for pointer
-            //		       dereferencing is critical here */
-            //                num = (char)*(char *)(buf + 1);
-            //                break;
-            //              case 2:
-            //                /* note the type casting here forces signed extension
-            //		       to preserve the signedness of the value */
-            //                /* note also the use of parentheses for pointer
-            //		       dereferencing is critical here */
-            //                /* note for 16 bit integers, byte ordering matters */
-            //                num = (short)ntohs(*(short *)(buf + 1));
-            //                break;
-            //              case 4:
-            //                /* note the type casting here forces signed extension
-            //		       to preserve the signedness of the value */
-            //                /* note also the use of parentheses for pointer
-            //		       dereferencing is critical here */
-            //                /* note for 32 bit integers, byte ordering matters */
-            //                num = (int)ntohl(*(int *)(buf + 1));
-            //                break;
-            //              default:
-            //                break;
-            //              }
-            /* a complete message is received, print it out */
-            //              printf("Received the number \"%d\". Client IP address is: %s\n",
-            //                     num, inet_ntoa(current->client_addr.sin_addr));
-            // }
           }
-          else {
+          else
+          {
             printf("Server Configure is bad, please retry.\n");
             return 0;
           }
