@@ -147,7 +147,6 @@ int main(int argc, char **argv)
     *(long int *)(sendbuffer + 6) = (long int)htonl(send_tv_usec);
     strncpy(sendbuffer + 10, dummyData, _size - 10);
 
-    // printf("%c\n", sendbuffer[0]);
     //send all
     int sentSizeCount = 0;
     int tempSizeToSent = _size;
