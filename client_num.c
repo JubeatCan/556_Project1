@@ -134,6 +134,7 @@ int main(int argc, char **argv)
   // time_t recv_tv_sec;
   long int recv_tv_usec;
   long thousand = 1000 * 1000;
+
   // Send timestamp PING
   for (i = 0; i < _count; i++)
   {
@@ -206,7 +207,7 @@ int main(int argc, char **argv)
     // printf("First diff MSec: %ld\n", server_tv_usec - send_tv_usec);
     printf("2-way delay in usec: %lf\n", (recv_tv_usec - send_tv_usec) * 1.0 / 1000);
     printf("Bandwidth with error: %lf\n", (_size * 2 * 8 * 1.0 / ((recv_tv_usec - send_tv_usec) * 1.0 / pow(10, 6))) / thousand);
-    printf("1000Mbps delay: %ld\n", _size * 2 * 8 / thousand);
+    printf("1000Mbps delay: %lf\n", _size * 2 * 8 * 1.0 / thousand);
     printf("----------------------------------\n");
   }
   free(buffer);
@@ -215,51 +216,4 @@ int main(int argc, char **argv)
   close(sock);
 
   return 0;
-
-  // while (1){
-  //   printf("\nEnter the type of the number to send (options are char, short, int, or bye to quit): ");
-  //   fgets(buffer, size, stdin);
-  //   if (strncmp(buffer, "bye", 3) == 0) {
-  //     /* free the resources, generally important! */
-  //     close(sock);
-  //     free(buffer);
-  //     free(sendbuffer);
-  //     return 0;
-  //   }
-
-  //   /* first byte of the sendbuffer is used to describe the number of
-  //      bytes used to encode a number, the number value follows the first
-  //      byte */
-  //   if (strncmp(buffer, "char", 4) == 0) {
-  //     sendbuffer[0] = 1;
-  //   } else if (strncmp(buffer, "short", 5) == 0) {
-  //     sendbuffer[0] = 2;
-  //   } else if (strncmp(buffer, "int", 3) == 0) {
-  //     sendbuffer[0] = 4;
-  //   } else {
-  //     printf("Invalid number type entered, %s\n", buffer);
-  //     continue;
-  //   }
-
-  //   printf("Enter the value of the number to send: ");
-  //   fgets(buffer, size, stdin);
-  //   num = atol(buffer);
-
-  //   switch(sendbuffer[0]) {
-  //   case 1:
-  //     *(char *) (sendbuffer+1) = (char) num;
-  //     break;
-  //   case 2:
-  //     /* for 16 bit integer type, byte ordering matters */
-  //     *(short *) (sendbuffer+1) = (short) htons(num);
-  //     break;
-  //   case 4:
-  //     /* for 32 bit integer type, byte ordering matters */
-  //     *(int *) (sendbuffer+1) = (int) htonl(num);
-  //     break;
-  //   default:
-  //     break;
-  //   }
-  //   send(sock, sendbuffer, sendbuffer[0]+1, 0);
-  // }
 }
