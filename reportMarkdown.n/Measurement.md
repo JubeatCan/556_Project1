@@ -36,7 +36,7 @@ As the script shows, we calculate the latency for data size from 100 to 65500 wi
 
 ### Result
 
-![Data2](/Users/cansun/Documents/GR_2sem/556_NW/556Network_Project1/556_Project1/reportMarkdown/Data2.png)
+![Data2](/Users/cansun/Documents/GR_2sem/556_NW/556Network_Project1/556_Project1/reportMarkdown.n/Data2.png)
 
 As we can tell from the plot, the results are stable **between 10000 bytes and 35000 bytes**, which is **0.13 ms**.
 
