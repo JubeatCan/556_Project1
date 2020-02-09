@@ -1,31 +1,26 @@
 import numpy as np
 import matplotlib.pyplot as plot
 
-f = open('65535_100.txt','r')
+f = open('dataJadeOpal.txt','r')
 lenth = 0
 time = 0
-band_with_error = 0
-lilun = 0
 l = []
 t = []
-be = []
 
-while lenth != 99:
-    lenth, time, band_with_error = f.readline().split()
+while lenth != 65500:
+    lenth, time = f.readline().split()
     lenth = int(lenth)
     time = float(time)
-    band_with_error = float(band_with_error)
-    l.append(lenth)
-    t.append(time)
-    be.append(band_with_error)
+    if time > 0 :
+        l.append(lenth)
+        t.append(time)
 
-x2 = np.arange(len(l))
-plot.figure(figsize=(16,10))
-plot.plot(x2, t, 'ro-')
-plot.xticks(x2, l, rotation='vertical')
-plot.title('i5-8279U with Shuffle On')
+plot.figure(figsize=(20,10))
+plot.plot(l, t)
+plot.xticks(np.arange(min(l), max(l) + 1, 1000), rotation='vertical')
+plot.title('Independent Delay between Jade and Opal')
 plot.xlabel('Size (Bytes)')
-plot.ylabel('Time (Seconds)')
+plot.ylabel('Time (MSec)')
 plot.legend()
 
 plot.savefig('Data2.png')

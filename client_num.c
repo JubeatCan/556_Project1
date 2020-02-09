@@ -126,6 +126,7 @@ int main(int argc, char **argv)
   }
 
   struct timeval _timeval;
+  struct timeval _timeval2;
 
   time_t send_tv_sec;
   long int send_tv_usec;
@@ -134,7 +135,10 @@ int main(int argc, char **argv)
   // time_t recv_tv_sec;
   long int recv_tv_usec;
   long thousand = 1000 * 1000;
+  FILE *f;
+  f = fopen("data.txt", "a");
 
+  double result[_count];
   // Send timestamp PING
   for (i = 0; i < _count; i++)
   {
@@ -184,9 +188,7 @@ int main(int argc, char **argv)
       receivedSizeCount += _receive_count;
       tempSizeToReceive = _size - receivedSizeCount;
     }
-    gettimeofday(&_timeval, NULL);
-    // recv_tv_sec = _timeval.tv_sec;
-    recv_tv_usec = _timeval.tv_usec;
+    
     // _receive_count = recv(sock, buffer, _size, 0);
 
     // if (_receive_count < 0) {
@@ -200,19 +202,31 @@ int main(int argc, char **argv)
     server_tv_sec = (time_t)htonl(*(time_t *)(buffer + 2));
     server_tv_usec = (long int)htonl(*(long int *)(buffer + 6));
 
+    
+    gettimeofday(&_timeval2, NULL);
+    recv_tv_usec = _timeval2.tv_usec;
+
     // printf("Server Received Timestamp Sec:  %ld\n", server_tv_sec);
     // printf("Server Received Timestamp MSec: %ld\n", server_tv_usec);
     // printf("First diff Sec: %ld\n", server_tv_sec - send_tv_sec);
-    // printf("First diff MSec: %ld\n", server_tv_usec - send_tv_usec);
-    printf("2-way delay in usec: %lf\n", (recv_tv_usec - send_tv_usec) * 1.0 / 1000);
-    printf("Bandwidth with error: %lf\n", (_size * 2 * 8 * 1.0 / ((recv_tv_usec - send_tv_usec) * 1.0 / pow(10, 6))) / thousand);
-    printf("1000Mbps delay: %lf\n", _size * 2 * 8 * 1.0 / thousand);
+    printf("First diff MSec: %lf\n", (server_tv_usec - send_tv_usec) * 1.0 / 1000);
+    printf("2-way delay in Msec: %lf\n", (recv_tv_usec - send_tv_usec) * 1.0 / 1000);
+    printf("Bandwidth with error (Mbps): %lf\n", (_size * 2 * 8 * 1.0 / ((recv_tv_usec - send_tv_usec) * 1.0 / pow(10, 6))) / thousand);
+    printf("10Gbps delay (Msec): %lf\n", _size * 2 * 8 * 1.0 / (thousand * 10));
     printf("----------------------------------\n");
+    result[i] = (recv_tv_usec - send_tv_usec) * 1.0 / 1000 - _size * 2 * 8 * 1.0 / (thousand * 10);
   }
   free(buffer);
   free(sendbuffer);
   free(dummyData);
   close(sock);
 
+  double accumulate = 0;
+  for (i = 0; i < _count; i++) {
+    accumulate += result[i];
+  }
+
+  fprintf(f, "%d %lf\n", _size ,accumulate/_count);
+  fclose(f);
   return 0;
 }
