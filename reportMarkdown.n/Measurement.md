@@ -40,5 +40,5 @@ As the script shows, we calculate the latency for data size from 20 to 65500 wit
 
 ![Data2](/Users/cansun/Documents/GR_2sem/556_NW/556Network_Project1/556_Project1/reportMarkdown.n/pic1.png)
 
-After the linear approximation, we found that the **independent delay is** **0.1008 Msec** and **the bandwidth is 5330 Mbps**.
+After the linear approximation, we found that the **independent delay is** **0.1008 Msec** and **the bandwidth is 5330 Mbps** ($3*10^{-6} byte/microsecond$).
 
