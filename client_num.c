@@ -136,7 +136,7 @@ int main(int argc, char **argv)
   long int recv_tv_usec;
   long thousand = 1000 * 1000;
   FILE *f;
-  f = fopen("data.txt", "a");
+  f = fopen("data.csv", "a");
 
   double result[_count];
   // Send timestamp PING
@@ -209,12 +209,12 @@ int main(int argc, char **argv)
     // printf("Server Received Timestamp Sec:  %ld\n", server_tv_sec);
     // printf("Server Received Timestamp MSec: %ld\n", server_tv_usec);
     // printf("First diff Sec: %ld\n", server_tv_sec - send_tv_sec);
-    printf("First diff MSec: %lf\n", (server_tv_usec - send_tv_usec) * 1.0 / 1000);
-    printf("2-way delay in Msec: %lf\n", (recv_tv_usec - send_tv_usec) * 1.0 / 1000);
-    printf("Bandwidth with error (Mbps): %lf\n", (_size * 2 * 8 * 1.0 / ((recv_tv_usec - send_tv_usec) * 1.0 / pow(10, 6))) / thousand);
-    printf("10Gbps delay (Msec): %lf\n", _size * 2 * 8 * 1.0 / (thousand * 10));
-    printf("----------------------------------\n");
-    result[i] = (recv_tv_usec - send_tv_usec) * 1.0 / 1000 - _size * 2 * 8 * 1.0 / (thousand * 10);
+    // printf("First diff MSec: %lf\n", (server_tv_usec - send_tv_usec) * 1.0 / 1000);
+    // printf("2-way delay in Msec: %lf\n", (recv_tv_usec - send_tv_usec) * 1.0 / 1000);
+    // printf("Bandwidth with error (Mbps): %lf\n", (_size * 2 * 8 * 1.0 / ((recv_tv_usec - send_tv_usec) * 1.0 / pow(10, 6))) / thousand);
+    // printf("10Gbps delay (Msec): %lf\n", _size * 2 * 8 * 1.0 / (thousand * 10));
+    // printf("----------------------------------\n");
+    result[i] = (recv_tv_usec - send_tv_usec) * 1.0 / 1000;
   }
   free(buffer);
   free(sendbuffer);
@@ -226,7 +226,7 @@ int main(int argc, char **argv)
     accumulate += result[i];
   }
 
-  fprintf(f, "%d %lf\n", _size ,accumulate/_count);
+  fprintf(f, "%d, %lf\n", _size ,accumulate/_count);
   fclose(f);
   return 0;
 }

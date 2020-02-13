@@ -334,8 +334,8 @@ int main(int argc, char **argv)
 
         /* the connection is made, everything is ready */
         /* let's see who's connecting to us */
-        printf("Accepted connection. Client IP address is: %s\n",
-               inet_ntoa(addr.sin_addr));
+        // printf("Accepted connection. Client IP address is: %s\n",
+              //  inet_ntoa(addr.sin_addr));
 
         /* remember this client connection in our linked list */
         add(&head, new_sock, addr);
@@ -475,7 +475,7 @@ int main(int argc, char **argv)
               /* something is wrong */
               if (count == 0)
               {
-                printf("Client closed connection. Client IP address is: %s\n", inet_ntoa(current->client_addr.sin_addr));
+                // printf("Client closed connection. Client IP address is: %s\n", inet_ntoa(current->client_addr.sin_addr));
               }
               else
               {
@@ -491,7 +491,7 @@ int main(int argc, char **argv)
             {
 
               unsigned short size = (unsigned short)ntohs(*(unsigned short *)(buf));
-              printf("%d\n", size);
+              // printf("%d\n", size);
 
               int remainSizeToRecv = size - count;
               while (count != size)
@@ -506,7 +506,7 @@ int main(int argc, char **argv)
                 remainSizeToRecv = size - count;
               }
 
-              printf("recv finish\n");
+              // printf("recv finish\n");
 
               struct timeval _timeval;
               gettimeofday(&_timeval, NULL);
@@ -534,7 +534,7 @@ int main(int argc, char **argv)
                 sentSizeCount += _sent_count;
                 tempSizeToSent = size - sentSizeCount;
               }
-              printf("send finish\n");
+              // printf("send finish\n");
             }
           }
           else
