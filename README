@@ -1,0 +1,11 @@
+Group:
+Can Sun
+Ying Zhou
+Junjie Zhao
+
+For the test of ping-pong mode, we test it under different clear server, localhost and serveral other situations, like under different size of data pack (from 10 to 65535),
+different times for ping-pong (from 1 to 10000). It works well.
+
+For the test of www mode, we test it using Chrome and other web browser with our own local html file. It works well.
+
+Up to now, no obvious problem is found.
